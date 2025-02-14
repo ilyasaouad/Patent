@@ -33,7 +33,7 @@ logger.setLevel(logging.INFO)
 # Constants
 COUNTRY_CODE = "NO"  # Country code
 START_YEAR = 2020    # Start year
-END_YEAR = 2020      # End year
+END_YEAR = 2022      # End year
 T = 0.5              # Threshold for the percentage of inventors from the country
 
 # Working directory

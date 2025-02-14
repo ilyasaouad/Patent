@@ -48,7 +48,18 @@ def get_patent_country_code(T: float = 0.5):
     country_code = config.country_code
     start_year = config.start_year
     end_year = config.end_year
-    output_dir = Path(config.output_dir)  
+    output_dir = Path(config.output_dir) 
+
+
+    # Ensure the output directory exists
+    # Check if the output directory exists
+    if not os.path.exists(output_dir):
+      # If it doesn't exist, create it
+      os.makedirs(output_dir)
+      print(f"Created output directory: {output_dir}")
+    else:
+      print(f"Output directory already exists: {output_dir}")
+ 
 
     # Create a SQLAlchemy session
     db = create_sqlalchemy_session()
@@ -152,7 +163,10 @@ def get_patent_country_code(T: float = 0.5):
     df_50_invt = result_df
 
     # Save family_ids to file for future usage
-    df_1appl_1invt['docdb_family_id'].to_csv(output_dir / 'docdb_family_id_1appl_1invt.csv', index=False)
-    df_50_invt['docdb_family_id'].to_csv(output_dir / 'docdb_family_id_50_invt.csv', index=False)
+
+    print(f"Output directory to save file----: {output_dir}")
+
+    df_1appl_1invt['docdb_family_id'].to_csv(output_dir / '01_docdb_family_id_1appl_1invt.csv', index=False)
+    df_50_invt['docdb_family_id'].to_csv(output_dir / '02_docdb_family_id_50_invt.csv', index=False)
 
     return df_1appl_1invt

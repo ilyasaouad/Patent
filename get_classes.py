@@ -3,7 +3,7 @@
 # 
 
 from shlex import join
-#import os,sys
+import os,sys
 import pandas as pd
 from pandas import read_sql
 #from sqlalchemy.util import py310 
@@ -18,6 +18,22 @@ import csv
 # Our functions
 from extract_data import get_patent_country_code
 import config
+
+# Initialize Logger
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stdout)
+
+# Define a detailed formatter that includes file name, line number, and timestamp
+formatter = logging.Formatter(
+    '%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+)
+handler.setFormatter(formatter)
+
+# Add the handler to the logger
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+
 
 output_dir = Path(config.output_dir)  
 
