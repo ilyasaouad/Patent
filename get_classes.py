@@ -3,27 +3,25 @@
 # 
 
 from shlex import join
-import os,sys
-import numpy as np
+#import os,sys
 import pandas as pd
 from pandas import read_sql
-from sqlalchemy.util import py310
-import xlsxwriter 
-import openpyxl
-import os
-from os import path
-import matplotlib.pyplot as plt
+#from sqlalchemy.util import py310 
+from pathlib import Path
+#import matplotlib.pyplot as plt
 from connect_database import create_sqlalchemy_session
-from sqlalchemy.orm import aliased, sessionmaker
+from sqlalchemy.orm import aliased
 from sqlalchemy import distinct
-import pandas as pd
 from sqlalchemy import create_engine, text, Table, Column, Integer, String, MetaData, select, or_, and_
+import logging
 import csv
+# Our functions
 from extract_data import get_patent_country_code
+import config
 
+output_dir = Path(config.output_dir)  
 
-working_dir = "C:/Users/iao/Desktop/PatStat_videre2/Patent_Familier_2024/patent_analyse/"
-
+ 
 # tables to work with
 from models_tables import (
     TLS201_APPLN,
@@ -116,4 +114,36 @@ def get_classes_ipc(family_ids, batch_size=100):
 
     return results  # Return all results as a list of tuples    
     
- 
+def get_ipc_cpc_classes(family_ids):
+    
+    cpc_results = get_classes_cpc(family_ids)
+    ipc_results = get_classes_ipc(family_ids)
+
+    df_cpc = pd.DataFrame(cpc_results, columns=['appln_id', 'docdb_family_id', 'cpc_class_symbol'])
+    df_ipc = pd.DataFrame(ipc_results, columns=['appln_id', 'docdb_family_id', 'ipc_class_symbol'])
+
+    # Merge ipc and cpc, and get only main classes, and remove duplucated class.
+    
+    # Clean CPC classes from G06F 12/60 to G06F12
+    logger.info("Cleaning CPC class data...")
+    df_cpc['cpc_class_symbol'] = df_cpc['cpc_class_symbol'].str.split('/').str[0].str.replace(' ', '')
+    df_cpc_grouped = df_cpc.groupby(['appln_id', 'docdb_family_id'])['cpc_class_symbol'].apply(
+        lambda x: ', '.join(set(x))
+    ).reset_index()
+
+    # Clean IPC classes
+    logger.info("Cleaning IPC class data...")
+    df_ipc['ipc_class_symbol'] = df_ipc['ipc_class_symbol'].str.split('/').str[0].str.replace(' ', '')
+    df_ipc_grouped = df_ipc.groupby(['appln_id', 'docdb_family_id'])['ipc_class_symbol'].apply(
+        lambda x: ', '.join(set(x))
+    ).reset_index()
+
+    # Merge CPC and IPC classes
+    logger.info("Merging CPC and IPC class data...")
+    df_merged = pd.merge(df_cpc_grouped, df_ipc_grouped, on=['appln_id', 'docdb_family_id'], how='outer')
+
+    # Save the merged DataFrame to a CSV file
+    logger.info(f"Saving merged CPC/IPC class data to ... main_table_prio_class")
+    df_merged.to_csv(output_dir / "main_table_prio_class.csv")
+
+    return df_merged

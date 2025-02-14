@@ -56,6 +56,9 @@ def main_table(family_ids, batch_size=500):
     pandas.DataFrame
         Combined DataFrame containing all query results
     """
+    # get constast from config.py
+    output_dir = Path(config.output_dir)  
+
     # Convert to list if input is pandas Series
     if isinstance(family_ids, pd.Series):
         family_ids = family_ids.tolist()
@@ -141,83 +144,10 @@ def main_table(family_ids, batch_size=500):
     # Create final DataFrame
     if all_results:
         final_df = pd.DataFrame(all_results)
-        
-        # Print final statistics
-        end_time = time.time()
-        total_time = end_time - start_time
-        print(f"\n\nProcessing completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"Total time: {total_time:.2f} seconds")
-        print(f"Total records processed: {processed_count}")
-        print(f"Successful queries: {successful_queries}")
-        print(f"Final dataset size: {len(final_df)} rows")
-        
-        return final_df
     else:
         print("\nNo results found for any batch")
-        return pd.DataFrame()
 
-## Run the query
-# Get family_ids / docdb_family_id from  docdb_family_id_1appl_1invt.csv in database.
-# this file is created from "extract_data.py"
-
-# Get output_dir from config.py and convert to Path object
-output_dir = Path(config.output_dir)
-print('--------------------------')
-print(f"output_dir: {output_dir}")
-print('--------------------------')
- 
-df_one_one = pd.read_csv(output_dir / 'docdb_family_id_1appl_1invt.csv') 
-
-# get only the unique docdb_family_id, and reset index
-df = df_one_one[['docdb_family_id']].drop_duplicates().reset_index(drop=True)
-
-# make main table equivant to tls201_appln for our data
-df_result = main_table(df['docdb_family_id'])
-
-# Save results to a file
-#file_ident = f"{1appl_1invt}"  
-df_result.to_csv(output_dir / 'main_table_1appl_1invt.csv', index=False)
-
-# the same for 50 inventors
-df_50_invt = pd.read_csv(output_dir / 'docdb_family_id_50_invt.csv')
-df = df_50_invt[['docdb_family_id']].drop_duplicates().reset_index(drop=True)
-
-df_result = main_table(df['docdb_family_id'])
-
-# Save results to a file
-df_result.to_csv(output_dir / 'main_table_50_invt.csv', index=False)
-
-
-#-----------------------------
-# Store tables in database  
-#-----------------------------
-engine = db.get_bind()
-
-table_name_1appl_1invt =  f"main_table_1appl_1invt"
-table_name_50_invt =  f"main_table_50_invt"
- 
-# Store DataFrame to database
-try:
-    df_1appl_1invt.to_sql(
-        table_name_1appl_1invt,     # table name
-        engine,
-        if_exists='replace',    # 'replace' will drop existing table, use 'append' to add data
-        index=False,
-        schema='dbo'           # default schema for MS SQL Server
-    )
-    print(f"Successfully added {table_name_1appl_1invt} to the database.")
-except Exception as e:
-    print(f"An error occurred while adding {table_name_1appl_1invt} to the database: {e}")
-    
-    # Store DataFrame to database
-try:
-    df_50_invt.to_sql(
-        table_name_50_invt,     # table name
-        engine,
-        if_exists='replace',    # 'replace' will drop existing table, use 'append' to add data
-        index=False,
-        schema='dbo'           # default schema for MS SQL Server
-    )
-    print(f"Successfully added {table_name_50_invt} to the database.")
-except Exception as e:
-    print(f"An error occurred while adding {table_name_50_invt} to the database: {e}")
+    # Save to desk or database
+     
+    final_df.to_csv(output_dir / '03_main_table_1appl_1invt.csv', index=False)
+    return final_df

@@ -1,25 +1,17 @@
-#---------------------------------------
+    #---------------------------------------
 #   Get priority auth from docdb_family_id
 # 
-
 from pathlib import Path
 from shlex import join
-import os,sys
-import numpy as np
 import pandas as pd
 from pandas import read_sql
-import xlsxwriter 
-import openpyxl
-import os
-from os import path
 from pathlib import Path
-import matplotlib.pyplot as plt
 from connect_database import create_sqlalchemy_session
-from sqlalchemy.orm import aliased, sessionmaker
+from sqlalchemy.orm import aliased
 from sqlalchemy import distinct
-import pandas as pd
 from sqlalchemy import create_engine, text, Table, Column, Integer, String, MetaData, select, or_, and_
 import csv
+# Our functions
 from extract_data import get_patent_country_code
 import config
 
@@ -41,7 +33,7 @@ t206 = aliased(TLS206_PERSON)
 t207 = aliased(TLS207_PERS_APPLN)
 t226 = aliased(TLS226_PERSON_ORIG)
 
-def get_priority_auth(family_ids, all=True, batch_size=100):
+def get_priority_auth(family_ids,batch_size=100):
     """
     Returns a list of tuples containing (docdb_family_id, priority_auth)
     for the specified docdb_family_ids, processed in batches.
@@ -93,14 +85,14 @@ def get_priority_auth(family_ids, all=True, batch_size=100):
         # Execute the query and fetch results
         result = db.execute(main_query).fetchall()
         results.extend(result)  # Append results from this batch
-    
-    if all: # all means 1appl_1invt
+
+
         # Convert results to a DataFrame and save
-        patstat_ids_priority_auth = pd.DataFrame(results, columns=["docdb_family_id", "priority_auth"])
-        patstat_ids_priority_auth.to_csv(output_dir / 'ids_priority_auth_1appl_1invt.csv', index=False)
-    else: # else means 50_invt
-        # Convert results to a DataFrame and save
-        patstat_ids_priority_auth = pd.DataFrame(results, columns=["docdb_family_id", "priority_auth"])
-        patstat_ids_priority_auth.to_csv(output_dir / 'ids_priority_auth_50_invt.csv', index=False)
-     # Save results to a file
+        ids_priority_auth = pd.DataFrame(results, columns=["docdb_family_id", "priority_auth"])
+        ids_priority_auth.to_csv(output_dir / '04_priority_auth_1appl_1invt.csv', index=False)
+
+    return ids_priority_auth
+
+
+
  
