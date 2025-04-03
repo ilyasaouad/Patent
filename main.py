@@ -7,7 +7,7 @@ from sqlalchemy import create_engine, text
 import logging
 
 # Our functions
-from extract_data import get_patent_country_code
+from extract_data import get_country
 from get_priority import get_priority_auth
 from get_classes import get_ipc_cpc_classes
 from get_main_table import main_table
@@ -33,7 +33,7 @@ logger.setLevel(logging.INFO)
 # Constants
 COUNTRY_CODE = "NO"  # Country code
 START_YEAR = 2020    # Start year
-END_YEAR = 2022      # End year
+END_YEAR = 2020      # End year
 T = 0.5              # Threshold for the percentage of inventors from the country
 
 # Working directory
@@ -117,8 +117,14 @@ def process_main_table(engine):
     """
     try:
         # Step 1: Extract applicants/inventors from a specific country
-        df_1appl_1invt = get_patent_country_code(T)
-        family_ids = df_1appl_1invt['docdb_family_id'].drop_duplicates().tolist()
+        df_1appl_1invt = get_country()
+
+        print('----- FINISH GET COUNTRY', df_1appl_1invt)     
+
+        sys.exit()
+
+        family_ids = df_1appl_1invt['docdb_family_id'].drop_duplicates()
+        family_ids = family_ids.tolist()
 
         # Step 2: Create the main table
         df_main_table = main_table(family_ids)
@@ -149,6 +155,8 @@ def process_main_table(engine):
             on='appln_id',
             how='left'
         )
+        # Clean _x, _y after merging
+        df_main_prio_names_class = clean_merged_dataframe(df_main_prio_names_class)
 
         # Step 7: Save to CSV
         df_main_prio_names_class.to_csv(output_dir / '06_main_table_prio_names_classes.csv', index=False)

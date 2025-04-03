@@ -16,7 +16,7 @@ from sqlalchemy import create_engine, text, Table, Column, Integer, String, Meta
 import logging
 import csv
 # Our functions
-from extract_data import get_patent_country_code
+from extract_data import get_country
 import config
 
 # Initialize Logger

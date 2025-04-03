@@ -108,6 +108,25 @@ class TLS226_PERSON_ORIG(Base):
     role = Column(String(2), nullable=False)
 
  
+class TLS211_PAT_PUBLN(Base):
+    __tablename__ = 'TLS211_PAT_PUBLN'
+   
+    pat_publn_id = Column(Integer, nullable=False)           
+    publn_auth = Column(String(2), nullable=False)           
+    publn_nr = Column(String(15), nullable=False)           
+    publn_nr_original = Column(String(100), nullable=False) 
+    publn_kind = Column(String(2), nullable=False)          
+    appln_id = Column(Integer, nullable=False)              
+    publn_date = Column(Date, nullable=False)               
+    publn_lg = Column(String(2), nullable=False)            
+    publn_first_grant = Column(String(1), nullable=False)   
+    publn_claims = Column(SmallInteger, nullable=False)     
+
+    # Define the primary key as pat_publn_id
+    __table_args__ = (
+        PrimaryKeyConstraint('pat_publn_id'),
+    )
+
 class TLS224_APPLN_CPC(Base):
     __tablename__ = 'TLS224_APPLN_CPC'
     
