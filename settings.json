@@ -1,0 +1,13 @@
+{
+    "mssql.enableRichExperiences": true,
+    "mssql.connections": [
+        {
+            "server": "SQL-004",
+            "database": "Patstat_H24",
+            "user": "patstatuser",
+            "password": "papa",
+            "authenticationType": "SqlLogin",
+            "trustServerCertificate": true
+        }
+    ]
+}

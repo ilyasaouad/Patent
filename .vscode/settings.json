@@ -1,0 +1,60 @@
+{
+    "mssql.enableRichExperiences": true,
+    "mssql.connections": [
+        
+        {
+            "server": "SQL-004",
+            "database": "Patstat_H24",
+            "user": "patstatuser",
+            "password": "",
+            "authenticationType": "SqlLogin",
+            "trustServerCertificate": true
+        }
+    ],
+    "sqltools.connections": [
+        {
+            "connectionTimeout": 15,
+            "mssqlOptions": {
+                "appName": "SQLTools",
+                "useUTC": true,
+                "encrypt": true,
+                "trustServerCertificate": true
+            },
+            "previewLimit": 50,
+            "server": "SQL-004",
+            "port": 1433,
+            "askForPassword": true,
+            "driver": "MSSQL",
+            "name": "Patent_2",
+            "group": "Analyse",
+            "database": "Patstat_H24",
+            "username": "patstatuser"
+        }
+    ],
+    "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "git.ignoreLimitWarning": true,
+    "remote.portsAttributes": {
+        "443": {
+            "protocol": "https"
+        },
+        "8443": {
+            "protocol": "https"
+        }
+    },
+
+    "windsurf.servers": [
+        {
+            "name": "MCP Filesystem",
+            "type": "mcp",
+            "command": "npx",
+            "args": [
+                "@modelcontextprotocol/server-filesystem",
+                "--socket",
+                "C:/Users/iao/Desktop"
+            ],
+            "socketPath": "C:\\Users\\iao\\Desktop\\mcp-filesystem.sock"
+        }
+    ]
+ }   
