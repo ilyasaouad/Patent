@@ -6,7 +6,9 @@ class Config:
     start_year = 2020
     end_year = 2020
     batch_size = 200  # Example static setting
-
+    ollama_base_url = "http://localhost:11434"  # Ollama base URL
+    model_name = "llama3.2:latest"  # Model name for Ollama
+    
     @classmethod
     def update(cls, **kwargs):
         """Update Config settings dynamically."""
