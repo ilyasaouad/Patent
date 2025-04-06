@@ -7,14 +7,15 @@ from pathlib import Path
 from sqlalchemy import create_engine, text
 import logging
 from matplotlib import pyplot as plt
+import streamlit as st
 
 # Our functions
 from get_applicants_inventors_details import get_applicants_inventors_data
 from connect_database import create_sqlalchemy_session
-from config import Config  # Import the Config class
-
-import streamlit as st
-
+from config import Config  
+from prompts import PROMPTS
+from llm_analyse import analyze_dataframe
+ 
 
 # Setup logging
 def setup_logging():
@@ -245,3 +246,68 @@ if st.button("Process Data"):
     for ratio_type, fig in figures.items():
         st.subheader(f"{ratio_type.capitalize()} Ratios")
         st.plotly_chart(fig, use_container_width=True)
+
+    # Analyses with Ollama.
+    # Access a specific prompt by its name
+    prompt_applicant_ratios = PROMPTS["applicant_ratios"]
+    prompt_inventor_ratios = PROMPTS["inventor_ratios"]
+    """ prompt_combined_ratios = PROMPTS["combined_ratios"]
+    prompt_applicant_counts = PROMPTS["applicant_counts"]
+    prompt_inventor_counts = PROMPTS["inventor_counts"]
+    prompt_combined_counts = PROMPTS["combined_counts"]
+    prompt_inv_indiv_counts = PROMPTS["inv_indiv_counts"]
+    prompt_inv_non_indiv_counts = PROMPTS["inv_non_indiv_counts"]
+    prompt_app_non_indiv_counts = PROMPTS["app_non_indiv_counts"]
+    prompt_app_indiv_counts = PROMPTS["app_indiv_counts"]
+    prompt_indiv_applicant_ratio = PROMPTS["indiv_applicant_ratio"]
+    prompt_female_inventor_ratio = PROMPTS["female_inventor_ratio"]
+    """
+    # Analyze each DataFrame
+    analyse_results = []
+    analyse_results.append(analyze_dataframe(df_applicant_ratios, "applicant_ratios", "Applicant ratio Analysis"))
+    analyse_results.append(analyze_dataframe(df_inventor_ratios, "inventor_ratios", "Inventor ratio Analysis"))
+    
+    print(analyse_results)  
+    
+    # Save analyse to txt file     
+    txt_output_dir = output_dir / "analyse" / "applicants_inventors"
+    txt_output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save each analysis result to a file
+    for result in analyse_results:
+        df_name = result["df_name"]  # Name of the analysis
+        response = result["response"]  # Response from Ollama
+
+        # Define the file path
+        filepath = txt_output_dir / f"{df_name.replace(' ', '_')}.txt"  # Replace spaces with underscores
+
+        # Save the response to a text file
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(response)
+        logger.info(f"Saved analysis results for '{df_name}' to {filepath}")
+    
+    # Streamlit output
+    # Define the directory containing the analysis results
+    txt_output_dir = Path(Config.output_dir) / "analyse" / "applicants_inventors"
+    # List all saved analysis files
+    txt_files = list(txt_output_dir.glob("*.txt"))  # Adjust extension if using JSON
+    if not txt_files:
+        st.warning("No analysis results found.")
+    else:
+        # Extract analysis names from filenames
+        analysis_names = [f.stem.replace("_analysis", "").replace("_", " ") for f in txt_files]
+
+        # Dropdown to select which analysis to view
+        selected_analysis = st.selectbox("Select an analysis to view:", analysis_names)
+
+        # Find the corresponding file
+        selected_file = next((f for f in txt_files if f.stem.startswith(selected_analysis.replace(" ", "_"))), None)
+
+        if selected_file:
+            # Load and display the analysis results
+            with open(selected_file, "r", encoding="utf-8") as f:
+                content = f.read()
+            st.subheader(selected_analysis)
+            st.text_area("Analysis Results", value=content, height=400)
+        else:
+            st.error("Selected analysis not found.")

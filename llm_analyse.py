@@ -1,52 +1,36 @@
-import csv
 import json
-import pandas as pd 
-from pathlib import Path
-from pandas import read_csv
-from  config import Config
 from chat_api_handel import OllamaChatAPIHandler
+from prompts import PROMPTS   
 
+def analyze_dataframe(df, prompt_name: str, df_name: str):
+    """
+    Analyze a DataFrame using OllamaChatAPIHandler.
 
-output_dir = Path(Config.output_dir) 
- 
-path_to_file = output_dir/'data/applicants_inventors'
-file = 'inventor_counts.csv'
+    Args:
+        df (pd.DataFrame): The DataFrame to analyze.
+        prompt_name (str): The name of the prompt to use (must match a key in the PROMPTS dictionary).
+        df_name (str): A unique identifier for the DataFrame (e.g., its name).
 
-# Open the CSV file
-with open(path_to_file/file, mode='r', newline='') as csv_file:
-    # Read the CSV file
-    csv_reader = csv.DictReader(csv_file)
+    Returns:
+        dict: A dictionary containing the DataFrame name and the response from Ollama.
+    """
+    # Serialize the DataFrame to JSON
+    json_data = df.to_json(orient="split", index=False)
+
+    # Get the prompt template
+    if prompt_name not in PROMPTS:
+        raise ValueError(f"Prompt '{prompt_name}' not found in the PROMPTS dictionary.")
     
-    # Convert CSV rows to a list of dictionaries
-    data = list(csv_reader)
+    prompt_template = PROMPTS[prompt_name]
 
-# Convert the list of dictionaries to JSON
-json_data = json.dumps(data, indent=4)
+    # Construct the prompt
+    prompt = prompt_template.format(json_data=json_data)
 
-# Join the list into a single string with newlines or spaces
-PROMPT_TEMPLATE = f"""
-Analyze the following DataFrame and provide insights:
+    # Call the API
+    response = OllamaChatAPIHandler.api_call(prompt)
 
-DataFrame:
-{json_data}
-
-Context:
-- The DataFrame contains columns: 'country', 'inventor', 'applicant', and 'docdb_family_id'.
-- Each row represents a patent or patent family.
-
-Instructions:
-- Summarize the key trends in the data.
-- Identify the country that appears most frequently in the dataset and call it the "Country of Interest."
-- Identify the top 5 countries with the most inventors and applicants.
-- Identify the top 5 countries that collaborate most frequently with the "Country of Interest" (i.e., countries with common inventors in the same application/docdb_family_id).
-
-Provide clear and concise answers based on the data.
-"""
-# Print the resulting prompt
-print(PROMPT_TEMPLATE)
-
-# Call the API
-response = OllamaChatAPIHandler.api_call(PROMPT_TEMPLATE)
-
-# Print the response
-print(response)
+    # Return the result as a dictionary
+    return {
+        "df_name": df_name,
+        "response": response
+    }

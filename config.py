@@ -8,6 +8,7 @@ class Config:
     batch_size = 200  # Example static setting
     ollama_base_url = "http://localhost:11434"  # Ollama base URL
     model_name = "llama3.2:latest"  # Model name for Ollama
+    openai_model_name = "gpt-4o"  # Model name for OpenAI
     
     @classmethod
     def update(cls, **kwargs):
@@ -17,3 +18,4 @@ class Config:
                 setattr(cls, key, value)
             else:
                 raise AttributeError(f"Unknown config attribute: {key}")
+            
