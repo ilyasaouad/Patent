@@ -173,11 +173,6 @@ def main():
                 # Define the directory where plots are saved 
                 plots_dir = Path(Config.output_dir) / "plots" / "applicants_inventors"
 
-                # Verify directories
-                st.write(f"Debug: Config.output_dir = {Config.output_dir}")
-                st.write(f"Debug: plots_dir = {plots_dir}")
-                st.write(f"Debug: txt_output_dir = {txt_output_dir}")
-
                 # Updated DataFrames dictionary with singular names to match file prefixes
                 dataframes = {
                     "applicant_ratio": ("Applicant Ratios", df_applicant_ratios),
@@ -205,7 +200,6 @@ def main():
                         # Look for PNG files
                         png_pattern = f"{df_name}*.png"
                         png_files = list(plots_dir.glob(png_pattern))
-                        st.write(f"Looking for PNG plots with pattern: {plots_dir / png_pattern}")
                         if png_files:
                             for png_file in png_files:
                                 st.image(
@@ -219,7 +213,6 @@ def main():
                         # Look for HTML files
                         html_pattern = f"{df_name}*.html"
                         html_files = list(plots_dir.glob(html_pattern))
-                        st.write(f"Looking for HTML plots with pattern: {plots_dir / html_pattern}")
                         if html_files:
                             for html_file in html_files:
                                 with open(html_file, "r", encoding="utf-8") as f:
@@ -232,7 +225,6 @@ def main():
                         # Display related analysis
                         st.write("#### Analysis")
                         analysis_file = txt_output_dir / f"{df_name}_analysis.txt"
-                        st.write(f"Looking for analysis file: {analysis_file}")
                         if analysis_file.exists():
                             try:
                                 with open(analysis_file, "r", encoding="utf-8") as f:
