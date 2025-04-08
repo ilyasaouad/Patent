@@ -1,46 +1,39 @@
-# prompts.py
 PROMPTS = {
-    "applicant_ratios": """
-    Analyze the following DataFrame and provide insights:
+    "applicants_inventors_count": 
+    """
+    Please analyze this patent-related dataframe:
 
-    DataFrame:
-    {json_data}
+    DataFrame - {df_name}:
+    {json_data1}
 
     Context:
-    - The data is related to patent data
-    - The DataFrame contains columns: 'country' of origin of the 'applicant', and 'docdb_family_id' as Id for a patent.
-    - Each row represents a patent or patent family.
+    Please provide:
 
-    Instructions:
-    - Summarize the key trends in the data.
-    - Identify the country that appears most frequently in the dataset and call it the "Country of Interest."
-    - Identify the top 5 countries with the most applicants and their countries.
-    - Identify the top 5 countries that collaborate most frequently with the "Country of Interest" (i.e., countries with common applicants in the same application/docdb_family_id).
-    
-    Please give me an analyse and NOT any script how to do it.
+    1. Individual analysis for each dataframe:
+       - Key metrics (unique patent families, country distribution)
+       - Patterns in country representation
+       - Notable outliers or unusual counts
+       - Special focus on {country_code}'s role in the data
+
+    2. Cross-dataframe analysis:
+       - Identify patent families with interesting collaboration patterns
+       - Compare applicant vs. inventor country distributions
+       - Highlight cases of international collaboration
+       - Analyze discrepancies between applicant countries and inventor countries
+
+    3. Provide a concise summary that:
+       - Identifies the central country/countries in this patent ecosystem
+       - Characterizes the nature of international collaboration
+       - Highlights the most notable patent families and why they're interesting
+       - Describes the overall structure of innovation and ownership evident in the data
+
+    Use specific examples from the data to support your observations and focus on patterns that reveal meaningful insights about patent collaboration networks.
     
     Provide text with clear and concise answers based on the data.
     """,
-
-    "inventor_ratios": """
-    Analyze the following DataFrame and provide insights:
-
-    DataFrame:
-    {json_data}
-
-    Context:
-    - The DataFrame contains columns: 'country', 'inventor', 'applicant', and 'docdb_family_id'.
-    - Each row represents a patent or patent family.
-
-    Instructions:
-    - Summarize the key trends in the data.
-    - Identify the country that appears most frequently in the dataset and call it the "Country of Interest."
-    - Identify the top 5 countries with the most inventors and applicants.
-    - Identify the top 5 countries that collaborate most frequently with the "Country of Interest" (i.e., countries with common inventors in the same application/docdb_family_id).
-
-    Please give me an analyse and NOT any script how to do it.
-    
-    Provide text with clear and concise answers based on the data.
+    "summary_applicants_inventors": 
+    """
+    Summarize these analyses:
+    {combined_responses}
     """,
-    # Add more prompts here as needed
 }

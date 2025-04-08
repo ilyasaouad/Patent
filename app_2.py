@@ -148,27 +148,36 @@ def main():
                     st.subheader(f"{ratio_type.capitalize()} Ratios")
                     st.plotly_chart(fig, use_container_width=True)
 
-                # Analyses with Ollama
-                analyse_results = []
-                analyse_results.append(analyze_dataframe(df_applicant_ratios, "applicant_ratios", "applicant ratio analysis"))
-                analyse_results.append(analyze_dataframe(df_inventor_ratios, "inventor_ratios", "inventor ratio analysis"))
+                # Create a list of dataframes
+                dataframes_list = [df_applicant_counts, df_inventor_counts, df_combined_counts]
+                dataframe_names = ["applicant_counts", "inventor_counts", "combined_counts"]
+                
+                prompt_name = "applicants_inventors_count"
+                # Get analysis for all dataframes together
+                analysis_result = analyze_dataframe(
+                dataframes_list,
+                dataframe_names,
+                prompt_name,
+                Config.country_code
+                )
 
-                # Save analyse to txt file     
+                # Save individual analyses
                 txt_output_dir = output_dir / "analyse" / "applicants_inventors"
                 txt_output_dir.mkdir(parents=True, exist_ok=True)
 
-                # Save each analysis result to a file
-                for result in analyse_results:
-                    df_name = result["df_name"]  
-                    response = result["response"]  
-
-                    # Define the file path
-                    filepath = txt_output_dir / f"{df_name.replace(' ', '_')}.txt"  
-                 
-                    # Save the response to a text file
+                for individual in analysis_result["individual_responses"]:
+                    df_name = individual["df_name"]
+                    response = individual["response"]
+                    filepath = txt_output_dir / f"{df_name}_analysis.txt"
                     with open(filepath, "w", encoding="utf-8") as f:
                         f.write(response)
-                    logger.info(f"Saved analysis results for '{df_name}' to {filepath}")
+                    logger.info(f"Saved analysis for '{df_name}' to {filepath}")
+
+                # Save summary
+                summary_filepath = txt_output_dir / "appl_inv_summary_analysis.txt"
+                with open(summary_filepath, "w", encoding="utf-8") as f:
+                    f.write(analysis_result["summary"])
+                logger.info(f"Saved summary to {summary_filepath}")
 
                 # Define the directory where plots are saved 
                 plots_dir = Path(Config.output_dir) / "plots" / "applicants_inventors"
